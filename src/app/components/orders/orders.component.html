@@ -1,0 +1,62 @@
+<div class="container-fluid">
+
+  <div class="row">
+    <div class="col-md-3">
+      <h2>
+        <i class="fa fa-cutlery"></i> Ordenes</h2>
+    </div>
+    <div class="col-md-9" style="text-align: right;">
+      <h3 *ngIf="isMenuDay">{{today | date:'dd-MM-yyyy' }} <br> Menu del Dia: {{menuDelDia}}</h3>
+      <h3 *ngIf="!isMenuDay">No hay menu del dia hoy :(</h3>
+    </div>
+  </div>
+
+  <div class='panel panel-primary'>
+    <div class='panel-body' style="overflow:scroll;">
+      <table *ngIf="orders?.length > 0; else noOrders" class="table table-striped">
+        <thead class="thead-inverse">
+          <tr>
+            <th>Numero de Orden</th>
+            <th *ngIf="isAdmin">Cliente</th>
+            <th>Hora Recibida</th>
+            <th>Hora Enviada</th>
+            <th>Precio</th>
+            <th>Estado</th>
+            <th>Detalles</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders">
+            <td>
+              <a routerLink="order/{{ order.id }}">{{order.id}}</a>
+            </td>
+            <td *ngIf="isAdmin">{{order.customerName}}</td>
+            <td>{{order.timeReceived | date:'dd-MM-yyyy HH:mm a' }}</td>
+            <td>{{order.timeEnviada | date:'dd-MM-yyyy HH:mm a'}}</td>
+            <td>{{order.totalPrice | currency:'USD': 'symbol' | changeDecimal}}</td>
+            <td>
+              <i *ngIf="order.status == 'Recibida' " class="fa fa-square-o"></i>
+              <i *ngIf="order.status == 'Aprobada' " class="fa fa-check-square-o"></i>
+              <i *ngIf="order.status == 'Rechazada' " class="fa fa-exclamation-triangle"></i>
+              <i *ngIf="order.status == 'Lista' " class="fa fa-star"></i>
+              <i *ngIf="order.status == 'Enviada' " class="fa fa-paper-plane"></i>
+              {{order.status}}
+            </td>
+            <td>
+              <a routerLink="order/{{ order.id }}" class="btn btn-secondary btn-sm">
+                <i class="fa fa-info-circle"></i>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noOrders>
+        <hr>
+        <h5>No hay ordenes!</h5>
+      </ng-template>
+    </div>
+  </div>
+
+
+
+</div>

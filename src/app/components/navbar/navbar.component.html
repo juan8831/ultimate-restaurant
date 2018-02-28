@@ -1,0 +1,38 @@
+<div class="nav navbar navbar-expand-md navbar-dark bg-dark mb-4">
+
+    <a routerLink="/" class="navbar-brand"> <img src="assets/mesonlogo.png" style="width:80px; height:60px;"> Restaurante El Meson</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+  <div class="container">
+    
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a routerLink="/" class="nav-link">Ordenes</a>
+        </li>
+        <li class="nav-item">
+            <a routerLink="/" class="nav-link">Pagos</a>
+          </li>
+      </ul>
+      <ul class="navbar-nav ml-auto">
+        <li *ngIf="!isLoggedIn && showRegister" class="nav-item">
+          <a routerLink="/register" class="nav-link">Register</a>
+        </li>
+        <li *ngIf="!isLoggedIn && showRegister" class="nav-item">
+          <a routerLink="/login" class="nav-link">Log In</a>
+        </li>
+        <li *ngIf="isLoggedIn" class="nav-item">
+          <a href="#" class="nav-link">{{ loggedInUser }}</a>
+        </li>
+        <li *ngIf="isLoggedIn" class="nav-item">
+          <a routerLink="/settings" class="nav-link">Settings</a>
+        </li>
+        <li *ngIf="isLoggedIn" class="nav-item">
+          <a href='#' (click)="OnLogoutClick()" class="nav-link">Log Out</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

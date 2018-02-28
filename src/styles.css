@@ -1,0 +1,11 @@
+@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+
+.icon{
+    width:40px; 
+    height:auto;
+  }
+  
+  .icon-sm{
+    width:20px; 
+    height:auto;
+  }

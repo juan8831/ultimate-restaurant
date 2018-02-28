@@ -1,0 +1,7 @@
+<a *ngIf="isAdmin" routerLink="/admin/order/add" class="btn btn-success btn-block ">
+    <i class="fa fa-plus "></i> New Order
+</a>
+
+<a *ngIf="!isAdmin" routerLink="/order/add" class="btn btn-success btn-block ">
+    <i class="fa fa-plus "></i> New Order
+</a>

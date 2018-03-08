@@ -1,44 +1,77 @@
 <h1 mat-dialog-title>{{selectedListTitle}}</h1>
 
 <mat-dialog-content>
-  <div class="container-fluid" *ngIf="!selectionIsVisible && !completoIsVisible">
-    <button class="btn btn-primary btn-lg btn-block m-2 p-2" (click)="showSelection('seco')">
-      <img src="assets/seco.svg" class="icon"> Seco </button>
-    <button class="btn btn-primary btn-lg btn-block m-2 mx-1 p-2" (click)="showSelection('sopa')">
-      <img src="assets/sopa.svg" class="icon"> Sopa </button>
+  <div class="container-fluid" *ngIf="!selectionIsVisible && !completoIsVisible && !planchaIsVisible">
+    <button class="btn btn-primary btn-lg btn-block m-2 mx-1 p-2" (click)="showSelection('porcion')">
+      <img src="assets/sopa.svg" class="icon"> Porcion </button>
+      <button class="btn btn-primary btn-lg btn-block m-2 p-2" (click)="showSelection('seco')">
+          <img src="assets/seco.svg" class="icon"> Seco </button>
     <button class="btn btn-primary btn-lg btn-block  m-2 p-2 " (click)="showSelection('bebiba')">
       <img src="assets/juice.svg" class="icon"> Bebiba </button>
+      <button class="btn btn-primary btn-lg btn-block m-2 mx-1 p-2" (click)="showPlancha()">
+          <img src="assets/plancha.svg" class="icon"> Plancha </button>
     <button class="btn btn-primary btn-lg btn-block m-2 p-2" (click)="showCompleto()">
       <img src="assets/completo.svg" class="icon"> Completo </button>
   </div>
 
   <div *ngIf="selectionIsVisible">
-
-    <div class="form-group row">
-      <label for="staticEmail" class="col-sm-3 col-form-label">Cantidad</label>
-      <div class="col-sm-9">
-        <select [value]=1 class="form-control" name="quantity" [(ngModel)]="newLineItem.quantity">
-          <option *ngFor="let x of quantityOptions" value={{x}}>{{x}} </option>
-        </select>
+    <form>
+      <div class="form-group row">
+        <label for="staticEmail" class="col-sm-3 col-form-label">Cantidad</label>
+        <div class="col-sm-9">
+          <select [value]=1 class="form-control" name="quantity" [(ngModel)]="newLineItem.quantity">
+            <option *ngFor="let x of quantityOptions" value={{x}}>{{x}} </option>
+          </select>
+        </div>
       </div>
-    </div>
 
-    <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newLineItem.inventoryId">
-      <option *ngFor="let x of selectedList" value={{x.id}}>{{x.description}} ({{x.price | currency:'USD': 'symbol' | changeDecimal }})</option>
-    </select>
-    <br>
+      <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newLineItem.inventoryId">
+        <option *ngFor="let x of selectedList" value={{x.id}}>{{x.description}} ({{x.price | currency:'USD': 'symbol' | changeDecimal }})</option>
+      </select>
+      <br>
+    </form>
 
     <h4>Total: {{newLineItem.quantity * getNewLineItemPrice() | currency:'USD': 'symbol' | changeDecimal }}</h4>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="hide()">Cancelar</button>
-      <button type="button" class="btn btn-success" (click)="addNewItem()">
-        <i class="fa fa-plus"></i> Agregar Nuevo Item</button>
-    </div>
+    <button type="button" class="btn btn-danger center" (click)="hide()">Cancelar</button>
+    <button type="button" class="btn btn-success center" (click)="addNewItem()">
+      <i class="fa fa-plus"></i> Agregar Nuevo Item</button>
   </div>
+
+  <div *ngIf="planchaIsVisible">
+      <form>
+        <div class="form-group row">
+          <label for="staticEmail" class="col-sm-3 col-form-label">Cantidad</label>
+          <div class="col-sm-9">
+            <select [value]=1 class="form-control" name="quantity" [(ngModel)]="newCompletoItem.quantity">
+              <option *ngFor="let x of quantityOptions" value={{x}}>{{x}} </option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="staticEmail" class="col-sm-3 col-form-label">Carne</label>
+          <div class="col-sm-9">
+            <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newCompletoItem.seco">
+              <option *ngFor="let x of secoItems" value={{x.description}}>{{x.description}} </option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="staticEmail" class="col-sm-3 col-form-label">Bebiba</label>
+          <div class="col-sm-9">
+            <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newCompletoItem.bebiba">
+              <option *ngFor="let x of bebibaItems" value={{x.description}}>{{x.description}}</option>
+            </select>
+          </div>
+        </div>
+      </form>
+      <h4>Total: {{newCompletoItem.quantity * getPlanchaPrice() | currency:'USD': 'symbol' | changeDecimal }}</h4>
+      <button type="button" class="btn btn-danger" (click)="hide()">Cancelar</button>
+      <button type="button" class="btn btn-success" (click)="addNewPlancha()">
+        <i class="fa fa-plus"></i>Agregar Nuevo Item</button>
+    </div>
 
   <div *ngIf="completoIsVisible">
     <form>
-
       <div class="form-group row">
         <label for="staticEmail" class="col-sm-3 col-form-label">Cantidad</label>
         <div class="col-sm-9">
@@ -73,10 +106,8 @@
       </div>
     </form>
     <h4>Total: {{newCompletoItem.quantity * getNewCompletoPrice() | currency:'USD': 'symbol' | changeDecimal }}</h4>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-danger" (click)="hide()">Cancelar</button>
-      <button type="button" class="btn btn-success" (click)="addNewCompleto()">
-        <i class="fa fa-plus"></i>Agregar Nuevo Item</button>
-    </div>
+    <button type="button" class="btn btn-danger" (click)="hide()">Cancelar</button>
+    <button type="button" class="btn btn-success" (click)="addNewCompleto()">
+      <i class="fa fa-plus"></i>Agregar Nuevo Item</button>
   </div>
 </mat-dialog-content>

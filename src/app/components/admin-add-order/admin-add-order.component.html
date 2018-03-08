@@ -21,7 +21,7 @@
                 <mat-form-field class="example-full-width">
                   <input type="text" placeholder="Escoger Cliente" aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto">
                   <mat-autocomplete #auto="matAutocomplete">
-                    <mat-option *ngFor="let customer of filteredCustomers | async"  [(ngModel)]="order.customerName" [ngModelOptions]="{standalone:true}" [value]="customer.name">
+                    <mat-option *ngFor="let customer of filteredCustomers | async"  [(ngModel)]="order.customerName" [ngModelOptions]="{standalone:true}" name="customerName" [value]="customer.name" ngDefaultControl>
                       {{ customer.name }}
                     </mat-option>
                   </mat-autocomplete>
@@ -49,7 +49,7 @@
       <hr>
       <h4>
           <img src="assets/cart.svg" class="icon"> Items
-        <button class="btn btn-success btn-sm" (click)="onTest()"> <i class="fa fa-plus"></i> Adicionar Item </button>
+        <button class="btn btn-success btn-sm" (click)="openDialog()"> <i class="fa fa-plus"></i> Adicionar Item </button>
       </h4>
       <div style="overflow:scroll; max-height:400px;">
         <table class="table table-striped table-hover" style='margin:auto; width:100%'>
@@ -129,7 +129,7 @@
                     <i class="fa fa-plus"></i> Agregar Nuevo Item</button>
                 </div>
               </div>
-                      
+
               <div *ngIf="completoIsVisible">
                   <form>       
                     <div class="form-group row">

@@ -73,6 +73,8 @@ import {
 import { ChangeDecimalPipe } from './change-decimal.pipe';
 import { FooterComponent } from './components/footer/footer.component';
 import { AddItemDialogComponent } from './components/add-item-dialog/add-item-dialog.component';
+import { DeliveryDialogComponent } from './components/delivery-dialog/delivery-dialog.component';
+import { RejectionDialogComponent } from './components/rejection-dialog/rejection-dialog.component';
 
 
 @NgModule({
@@ -97,7 +99,9 @@ import { AddItemDialogComponent } from './components/add-item-dialog/add-item-di
     AdminAddOrderComponent,
     ChangeDecimalPipe,
     FooterComponent,
-    AddItemDialogComponent
+    AddItemDialogComponent,
+    DeliveryDialogComponent,
+    RejectionDialogComponent
     
   ],
   imports: [
@@ -146,6 +150,6 @@ import { AddItemDialogComponent } from './components/add-item-dialog/add-item-di
   ],
   providers: [ClientService, AuthService, SettingsService, OrderService, CustomerService, InventoryService],
   bootstrap: [AppComponent],
-  entryComponents: [AddItemDialogComponent]
+  entryComponents: [AddItemDialogComponent, DeliveryDialogComponent, RejectionDialogComponent]
 })
 export class AppModule { }

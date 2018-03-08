@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>{{selectedListTitle}}</h1>
+
+<mat-dialog-content>
+  <form> 
+      <div class="form-group row">
+        <label for="staticEmail" class="col-sm-3 col-form-label mr-1">Persona </label>
+        <div class="col-sm-9">
+          <select class="form-control" name="deliveryBoy" [(ngModel)]="deliveryBoy">
+            <option *ngFor="let x of deliveryBoyOptions" value={{x}}>{{x}} </option>
+          </select>
+        </div>
+      </div>
+  </form>
+      <button type="button" class="btn btn-success" (click)="selectDeliveryBoy()">
+        <i class="fa fa-plus"></i>Seleccionar Domicilio</button>
+</mat-dialog-content>

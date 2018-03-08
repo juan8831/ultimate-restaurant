@@ -49,6 +49,7 @@ export class AddItemDialogComponent implements OnInit {
   sopaIsVisible: boolean;
   bebibaIsVisible: boolean;
   totalPrice: number = 0;
+  planchaIsVisible: boolean;
 
   statusSelectionIsVisible: boolean;
 
@@ -107,7 +108,7 @@ export class AddItemDialogComponent implements OnInit {
 
     this.statusSelectionIsVisible = true;
 
-    this.secoIsVisible = this.sopaIsVisible = this.bebibaIsVisible = false;
+    this.secoIsVisible = this.sopaIsVisible = this.bebibaIsVisible = this.planchaIsVisible = false;
 
     this.authService.getAuth().subscribe(auth => {
       if (auth) {
@@ -192,25 +193,16 @@ export class AddItemDialogComponent implements OnInit {
     }
   }
 
-  onTest() {
-    //this.order.lineItems.unshift({"inventoryId": '4', isComplete: true, quantity: 2});
-    this.show();
-    // $('#editModal').modal('show');
-  }
+  completoIsVisible: boolean;
+  selectionIsVisible: boolean;
 
-  public show(): void {
-    this.visible = true;
-    setTimeout(() => this.visibleAnimate = true, 100);
-    this.secoIsVisible = this.sopaIsVisible = this.bebibaIsVisible = false;
-    this.selectedListTitle = "Item Nuevo";
-  }
 
   public hide(): void {
     this.visibleAnimate = false;
     setTimeout(() => this.visible = false, 300);
     this.resetNewLineItem();
-    this.selectionIsVisible = false;
-    this.completoIsVisible = false;
+    this.planchaIsVisible = this.completoIsVisible = this.selectionIsVisible = false;
+    this.selectedListTitle = "Item Nuevo";
     //this.selectedListTitle = "Nuevo Item";
   }
 
@@ -231,7 +223,7 @@ export class AddItemDialogComponent implements OnInit {
   public showBebiba() {
     this.bebibaIsVisible = true;
   }
-  completoIsVisible: boolean;
+  
 
   public showCompleto() {
     this.completoIsVisible = true;
@@ -239,13 +231,21 @@ export class AddItemDialogComponent implements OnInit {
     this.selectedListTitle = "Almuerzo Completo";
   }
 
-  selectionIsVisible: boolean;
+  public showPlancha() {
+    this.planchaIsVisible = true;
+    this.completoIsVisible = false;
+    this.selectionIsVisible = false;
+    this.selectedListTitle = "Plancha";
+  }
+
+
+  
 
   public showSelection(type) {
     this.selectionIsVisible = true;
     switch (type) {
-      case "sopa": this.selectedList = this.sopaItems;
-        this.selectedListTitle = "Sopa";
+      case "porcion": this.selectedList = this.sopaItems;
+        this.selectedListTitle = "Porcion";
         break;
       case "seco": this.selectedList = this.secoItems;
         this.selectedListTitle = "Seco";
@@ -292,6 +292,23 @@ export class AddItemDialogComponent implements OnInit {
 
   }
 
+  addNewPlancha(){
+    if(!this.newCompletoItem.bebiba || !this.newCompletoItem.seco){
+      return; //TODO Add error message
+    }
+
+    this.newLineItem.inventoryId = "plancha";
+    this.newLineItem.quantity = this.newCompletoItem.quantity;
+    this.newLineItem.pricePerUnit = this.getPlanchaPrice();
+    this.newLineItem.description = `${this.newCompletoItem.seco} | ${this.newCompletoItem.bebiba}`
+
+    var data = {
+      newLineItem: this.newLineItem
+    }
+    this.dialogRef.close(data);
+
+  }
+
   addNewCompleto() {
     if(!this.newCompletoItem.bebiba || !this.newCompletoItem.seco || !this.newCompletoItem.sopa ){
       return; //TODO Add error message
@@ -317,6 +334,14 @@ export class AddItemDialogComponent implements OnInit {
   getNewCompletoPrice() {
     var tempItem = this.inventoryItems.find((item) => {
       return item.id === 'completo'
+    });
+    return tempItem ? tempItem.price : 0;
+
+  }
+
+  getPlanchaPrice() {
+    var tempItem = this.inventoryItems.find((item) => {
+      return item.id === 'plancha'
     });
     return tempItem ? tempItem.price : 0;
 
@@ -368,7 +393,7 @@ export class AddItemDialogComponent implements OnInit {
       this.order.timeEnviada = new Date();
     }
     if(this.order.status == 'Rechazada'){
-      this.order.timeEnviada = '';
+      this.order.timeEnviada = null;
     }
     this.orderService.updateOrder(this.order);
     this.flashMessage.show('Estado actualizado', {

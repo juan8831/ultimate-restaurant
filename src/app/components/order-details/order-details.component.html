@@ -17,7 +17,12 @@
 <hr>
 <div *ngIf="order" class="card">
 
-  <h3 class="card-header">Orden: {{order.id}} </h3>
+  <h3 class="card-header">Orden: {{order.id}} 
+    <button *ngIf="isAdmin" type="submit" (click)="print()" class="btn btn-primary pull-right"> 
+        <i class="fa fa-print"></i>
+       Imprimir
+    </button>
+  </h3>
   <div class="card-body">
     <div class="row">
       <div class="cold-md-8 col-sm-6">
@@ -27,7 +32,7 @@
         <br>
         <label>
           <img src="assets/home.svg" class="icon-sm">
-          <b>Direccion:</b> {{currentOrderEmail}}</label>
+          <b>Direccion:</b> {{customerAddress}}</label>
       </div>
       <div class="cold-md-8 col-sm-6">
         <h3 class="pull-right">
@@ -42,20 +47,32 @@
     <ul class="list-group">
       <li class="list-group-item">
         <div *ngIf="isAdmin" class="clearfix">
-          <form (submit)="updateStatus()">
-            <div class="input-group">
-              <label class="mr-2">
-                <img src="assets/list.svg" class="icon-sm">
-                <b> Estado de Pedido: </b>
-              </label>
-              <select [value]="order.status" style="max-width: 40%" class="form-control" name="inventoryId" [(ngModel)]="order.status">
-                <option *ngFor="let x of statusOptions" value={{x}}>{{x}} </option>
-              </select>
-              <span class="input-group-btn">
-                <button type="submit" class="btn btn-primary">Actualizar</button>
-              </span>
-            </div>
-          </form>
+          <div class="input-group">
+            <label class="mr-2">
+              <img src="assets/list.svg" class="icon-sm">
+              <b> Estado de Pedido: </b>
+            </label>
+
+            <select [value]="order.status" style="max-width: 40%" class="form-control" name="inventoryId" [(ngModel)]="order.status">
+              <option *ngFor="let x of statusOptions" value={{x}}>{{x}} </option>
+            </select>
+            <span *ngIf="order.status == 'Recibida'" class="input-group-btn">
+              <button type="submit" (click)="changeStatus('Aprobada')" class="btn btn-success">Aprobar</button>
+            </span>
+            <span *ngIf="order.status == 'Recibida'" class="input-group-btn">
+              <button type="submit" (click)="changeStatus('Rechazada')" class="btn btn-danger">Rechazar</button>
+            </span>
+            <span *ngIf="order.status == 'Aprobada'" class="input-group-btn">
+              <button type="submit" (click)="changeStatus('Lista')" class="btn btn-primary">Lista</button>
+            </span>
+            <span *ngIf="order.status == 'Lista'" class="input-group-btn">
+              <button type="submit" (click)="changeStatus('Enviada')" class="btn btn-primary">Enviar</button>
+            </span>
+          </div>
+
+          <label *ngIf="order.rejectionReason">Razon de Rechazo: {{order.rejectionReason}}</label>
+          <br>
+          <label>Domicilio: {{order.deliveryBoy}}</label>
         </div>
         <div *ngIf="!isAdmin">
           <label>
@@ -68,12 +85,14 @@
             <i *ngIf="order.status == 'Enviada' " class="fa fa-paper-plane"></i>
             {{order.status}}
           </label>
+          <label *ngIf="order.rejectionReason">{{order.rejectionReason}}</label>
         </div>
       </li>
 
+      
       <li class="list-group-item">
         <div class="clearfix">
-          <form (submit)="updateStatus()">
+          <form (submit)="print()">
             <div class="input-group">
               <label class="mr-2">
                 <img src="assets/notepad.svg" class="icon-sm">
@@ -124,108 +143,49 @@
         </tbody>
       </table>
     </div>
-
-
   </div>
-  <a *ngIf="isAdmin" (click)="submitOrder()" class="btn btn-md btn-warning">
+  <a *ngIf="isAdmin" (click)="updateOrder()" class="btn btn-lg btn-warning">
     <i class="fa fa-plus"></i> Actualizar Order
   </a>
   <br>
   <br>
 
-</div>
 
-<div (click)="onContainerClicked($event)" class="modal fade" tabindex="-1" [ngStyle]="{'display': visible ? 'block' : 'none', 'opacity': visibleAnimate ? 1 : 0}">
-  <div class="modal-dialog modal-lg" style="overflow:scroll;">
-    <div class="modal-content" style="overflow:scroll;">
-      <br>
-      <div class="modal-header" style="overflow:scroll;">
-
-        <h3>Adicionar {{selectedListTitle}}</h3>
+<div id="print" style="display: none; max-width:100px" >
+    <label><b>Restaurante El Meson</b></label> <br>
+    <label><b>Orden:</b> {{order.id}}</label> <br>
+    <label>
+        <b>Cliente:</b> {{order.customerName}} | <b>Direccion:</b> {{customerAddress}} 
+    </label>
+    <br>
+    <label><b>Nota:</b> {{order.note}}</label>
+    <br>
+    <label> <b>Hora Recibida:</b> {{order.timeReceived | date:'dd-MM-yyyy HH:mm a'}}</label>
+      <div >
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Ctd</th>
+              <th>Desc</th>  
+              <!-- <th>Precio C/U</th> -->
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let lineItem of order.lineItems; let i = index">
+                <td>{{lineItem.quantity}}</td>
+              <td style="width:250px">{{lineItem.description}}</td>              
+              <!-- <td>{{lineItem.pricePerUnit | currency:'USD': 'symbol' | changeDecimal }}</td> -->
+              <td>{{lineItem.quantity * lineItem.pricePerUnit | currency:'USD': 'symbol' | changeDecimal }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="modal-body" style="overflow:scroll;">
-
-        <div style="overflow:scroll;" *ngIf="!selectionIsVisible && !completoIsVisible ">
-          <button class="btn btn-primary btn-lg" (click)="showSelection('seco')">
-            <img src="assets/seco.svg" class="icon"> Seco </button>
-          <button class="btn btn-primary btn-lg" (click)="showSelection('sopa')">
-            <img src="assets/sopa.svg" class="icon"> Sopa </button>
-          <button class="btn btn-primary btn-lg" (click)="showSelection('bebiba')">
-            <img src="assets/juice.svg" class="icon"> Bebiba </button>
-          <button class="btn btn-primary btn-lg" (click)="showCompleto()">
-            <img src="assets/completo.svg" class="icon"> Completo </button>
-        </div>
-
-        <div *ngIf="selectionIsVisible">
-
-          <div class="form-group row">
-            <label for="staticEmail" class="col-sm-2 col-form-label">Cantidad</label>
-            <div class="col-sm-10">
-              <select [value]=1 class="form-control" name="quantity" [(ngModel)]="newLineItem.quantity">
-                <option *ngFor="let x of quantityOptions" value={{x}}>{{x}} </option>
-              </select>
-            </div>
-          </div>
-
-          <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newLineItem.inventoryId">
-            <option *ngFor="let x of selectedList" value={{x.id}}>{{x.description}} ({{x.price | currency:'USD': 'symbol' | changeDecimal }})</option>
-          </select>
-          <br>
-
-          <h4>Total: {{newLineItem.quantity * getNewLineItemPrice() | currency:'USD': 'symbol' | changeDecimal }}</h4>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-danger" (click)="hide()">Cancelar</button>
-            <button type="button" class="btn btn-success" (click)="addNewItem()">
-              <i class="fa fa-plus"></i> Agregar Nuevo Item</button>
-          </div>
-        </div>
-
-        <div *ngIf="completoIsVisible">
-          <form>
-
-            <div class="form-group row">
-              <label for="staticEmail" class="col-sm-2 col-form-label">Cantidad</label>
-              <div class="col-sm-10">
-                <select [value]=1 class="form-control" name="quantity" [(ngModel)]="newCompletoItem.quantity">
-                  <option *ngFor="let x of quantityOptions" value={{x}}>{{x}} </option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group row">
-              <label for="staticEmail" class="col-sm-2 col-form-label">Seco</label>
-              <div class="col-sm-10">
-                <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newCompletoItem.seco">
-                  <option *ngFor="let x of secoItems" value={{x.description}}>{{x.description}} </option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group row">
-              <label for="staticEmail" class="col-sm-2 col-form-label">Sopa</label>
-              <div class="col-sm-10">
-                <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newCompletoItem.sopa">
-                  <option *ngFor="let x of sopaItems" value={{x.description}}>{{x.description}} </option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group row">
-              <label for="staticEmail" class="col-sm-2 col-form-label">Bebiba</label>
-              <div class="col-sm-10">
-                <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newCompletoItem.bebiba">
-                  <option *ngFor="let x of bebibaItems" value={{x.description}}>{{x.description}}</option>
-                </select>
-              </div>
-            </div>
-          </form>
-          <h4>Total: {{newCompletoItem.quantity * getNewCompletoPrice() | currency:'USD': 'symbol' | changeDecimal }}</h4>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-danger" (click)="hide()">Cancelar</button>
-            <button type="button" class="btn btn-success" (click)="addNewCompleto()">
-              <i class="fa fa-plus"></i>Agregar Nuevo Item</button>
-          </div>
-        </div>
-
-      </div>
-
+      <h4 class="pull-right">
+          Precio Total:
+          <span [class.text-danger]="hasBalance" [class.text-success]="!hasBalance">
+            {{totalPrice | currency:'USD': 'symbol' | changeDecimal}}
+          </span>
+      </h4>
     </div>
   </div>
-</div>

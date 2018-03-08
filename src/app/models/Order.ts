@@ -5,9 +5,11 @@ export interface Order{
     customerEmail: string;
     status: string;
     lineItems?: LineItem[];
-    timeReceived: any;
-    timeEnviada: any;
+    timeReceived: Date;
+    timeEnviada: Date;
     totalPrice: number;
     note: string;
     customerName?: string;
+    deliveryBoy?: string;
+    rejectionReason?: string;
 }

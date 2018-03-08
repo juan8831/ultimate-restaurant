@@ -13,6 +13,9 @@ import { InventoryService } from '../../services/inventory.service';
 import { InventoryItem } from '../../models/InventoryItem';
 import { Completo } from '../../models/Completo';
 import {FormControl} from '@angular/forms';
+import {MatDialog, MatDialogConfig} from '@angular/material';
+import {AddItemDialogComponent} from '../add-item-dialog/add-item-dialog.component';
+
 
 import {Observable} from 'rxjs/Observable';
 import {startWith} from 'rxjs/operators/startWith';
@@ -26,6 +29,17 @@ import {Customer} from '../../models/Customer';
   styleUrls: ['./add-order.component.css']
 })
 export class AddOrderComponent implements OnInit {
+
+  constructor(
+    private orderService: OrderService,
+    private customerService: CustomerService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private flashMessage: FlashMessagesService,
+    private authService: AuthService,
+    private inventoryService: InventoryService,
+    private dialog: MatDialog
+  ) { }
 
   filter(val: string): Customer[] {
     return this.customers.filter(customer =>
@@ -41,8 +55,8 @@ export class AddOrderComponent implements OnInit {
     customerEmail: '',
     status: '',
     lineItems: [],
-    timeReceived: '',
-    timeEnviada: '',
+    timeReceived: null,
+    timeEnviada: null,
     totalPrice: 0,
     note: '',
     customerName: ''
@@ -103,16 +117,6 @@ export class AddOrderComponent implements OnInit {
 
   customers: Customer[];
   statusOptions = ['Recibida', 'Aprobado', 'Rechazada', 'Lista', 'Enviada'];
-
-  constructor(
-    private orderService: OrderService,
-    private customerService: CustomerService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private flashMessage: FlashMessagesService,
-    private authService: AuthService,
-    private inventoryService: InventoryService
-  ) { }
 
   ngOnInit() {
 
@@ -192,44 +196,6 @@ export class AddOrderComponent implements OnInit {
     }
   }
 
-  onTest() {
-    //this.order.lineItems.unshift({"inventoryId": '4', isComplete: true, quantity: 2});
-    this.show();
-    // $('#editModal').modal('show');
-  }
-
-  public show(): void {
-    this.visible = true;
-    setTimeout(() => this.visibleAnimate = true, 100);
-    this.secoIsVisible = this.sopaIsVisible = this.bebibaIsVisible = false;
-    this.selectedListTitle = "Item Nuevo";
-  }
-
-  public hide(): void {
-    this.visibleAnimate = false;
-    setTimeout(() => this.visible = false, 300);
-    this.resetNewLineItem();
-    this.selectionIsVisible = false;
-    this.completoIsVisible = false;
-  }
-
-  public onContainerClicked(event: MouseEvent): void {
-    if ((<HTMLElement>event.target).classList.contains('modal')) {
-      this.hide();
-    }
-  }
-
-  public showSeco() {
-    this.secoIsVisible = true;
-    this.selectedList = this.sopaItems;
-  }
-  public showSopa() {
-    this.sopaIsVisible = true;
-
-  }
-  public showBebiba() {
-    this.bebibaIsVisible = true;
-  }
   completoIsVisible: boolean;
 
   public showCompleto() {
@@ -239,81 +205,7 @@ export class AddOrderComponent implements OnInit {
   }
 
   selectionIsVisible: boolean;
-
-  public showSelection(type) {
-    this.selectionIsVisible = true;
-    switch (type) {
-      case "sopa": this.selectedList = this.sopaItems;
-        this.selectedListTitle = "Sopa";
-        break;
-      case "seco": this.selectedList = this.secoItems;
-        this.selectedListTitle = "Seco";
-        break;
-      case "bebiba": this.selectedList = this.bebibaItems;
-        this.selectedListTitle = "Bebiba";
-        break;
-    }
-    this.resetNewLineItem();
-  }
-
-  resetNewLineItem() {
-    this.newLineItem = {
-      'inventoryId': '',
-      'quantity': 1,
-      'description': '',
-      'pricePerUnit': 0
-    }
-  }
-
-  resetCompleto() {
-    this.newCompletoItem = {
-      id: '',
-      quantity: 1,
-      bebiba: '',
-      seco: '',
-      sopa: ''
-    }
-  }
-
-  addNewItem() {
-    if (!this.newLineItem.inventoryId || this.newLineItem.quantity == 0) {
-      return; //add error message
-    }
-      var inventoryItem = this.getNewLineInventoryItem();
-      this.newLineItem.pricePerUnit = inventoryItem.price;
-      this.newLineItem.description = inventoryItem.description;
-
-      this.order.lineItems.push(this.newLineItem);
-      this.flashMessage.show("Item nuevo agregado", {
-        cssClass: 'alert-success', timeout: 4000
-      });
-      this.hide();
-    
-    this.resetNewLineItem();
-    this.getTotalPrice();
-    this.selectedListTitle = "Item Nuevo";
-  }
-
-  addNewCompleto() {
-    if(!this.newCompletoItem.bebiba || !this.newCompletoItem.seco || !this.newCompletoItem.sopa ){
-      return; //TODO Add error message
-    }
-    this.newLineItem.inventoryId = "completo";
-    this.newLineItem.quantity = this.newCompletoItem.quantity;
-    this.newLineItem.pricePerUnit = this.getNewCompletoPrice();
-    this.newLineItem.description = `${this.newCompletoItem.seco} | ${this.newCompletoItem.sopa} | ${this.newCompletoItem.bebiba}`
-
-    if (this.newLineItem.quantity > 0) {
-      this.order.lineItems.push(this.newLineItem);
-      this.flashMessage.show("Item nuevo agregado", {
-        cssClass: 'alert-success', timeout: 4000
-      });
-      this.hide();
-      this.getTotalPrice();
-      this.resetCompleto();
-    }
-
-  }
+  
 
   getNewLineItemPrice() {
     var tempItem = this.inventoryItems.find((item) => {
@@ -386,5 +278,32 @@ export class AddOrderComponent implements OnInit {
     });
 
     this.router.navigate(['/']);
+  }
+
+  openDialog(){
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = false;
+    dialogConfig.autoFocus = false;
+    //dialogConfig.height = '80%';
+    //dialogConfig.width = '60%';
+
+    this.selectedListTitle = "Item Nuevo";
+    
+    dialogConfig.data = {
+      selectedListTitle: "Item Nuevo"
+  };
+    const dialogRef = this.dialog.open(AddItemDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe( data => {
+      this.addNewLineItem(data.newLineItem);
+    }); 
+      
+  }
+
+  addNewLineItem(item){
+    this.order.lineItems.push(item);
+      this.flashMessage.show("Item nuevo agregado", {
+        cssClass: 'alert-success', timeout: 4000
+      });
+    this.getTotalPrice();
   }
 }

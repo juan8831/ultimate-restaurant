@@ -5,58 +5,153 @@
       <h2>
         <i class="fa fa-cutlery"></i> Ordenes</h2>
     </div>
-    <div class="col-md-9" style="text-align: right;">
-      <h3 *ngIf="isMenuDay">{{today | date:'dd-MM-yyyy' }} <br> Menu del Dia: {{menuDelDia}}</h3>
-      <h3 *ngIf="!isMenuDay">No hay menu del dia hoy :(</h3>
+    <div class=" btn col-md-9" style="text-align: right;">
+      <h4 style="word-wrap: break-word" *ngIf="isMenuDay">Menu del Dia para Hoy: {{menuDelDia}}
+      </h4>
+      <h4 style="word-wrap: break-word" *ngIf="!isMenuDay">
+        No hay menu del dia hoy :(
+      </h4>
     </div>
   </div>
+
+
 
   <div class='panel panel-primary'>
+    <a *ngIf="isAdmin" routerLink="/admin/order/add" class="btn btn-lg btn-success btn-block ">
+      <i class="fa fa-plus "></i> Crear Nueva Orden
+    </a>
+    <a *ngIf="!isAdmin" routerLink="/order/add" class="btn btn-lg btn-success btn-block ">
+      <i class="fa fa-plus "></i> Crear Nueva Orden
+    </a>
+    <br>
     <div class='panel-body' style="overflow:scroll;">
-      <table *ngIf="orders?.length > 0; else noOrders" class="table table-striped">
-        <thead class="thead-inverse">
-          <tr>
-            <th>Numero de Orden</th>
-            <th *ngIf="isAdmin">Cliente</th>
-            <th>Hora Recibida</th>
-            <th>Hora Enviada</th>
-            <th>Precio</th>
-            <th>Estado</th>
-            <th>Detalles</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let order of orders">
-            <td>
-              <a routerLink="order/{{ order.id }}">{{order.id}}</a>
-            </td>
-            <td *ngIf="isAdmin">{{order.customerName}}</td>
-            <td>{{order.timeReceived | date:'dd-MM-yyyy HH:mm a' }}</td>
-            <td>{{order.timeEnviada | date:'dd-MM-yyyy HH:mm a'}}</td>
-            <td>{{order.totalPrice | currency:'USD': 'symbol' | changeDecimal}}</td>
-            <td>
-              <i *ngIf="order.status == 'Recibida' " class="fa fa-square-o"></i>
-              <i *ngIf="order.status == 'Aprobada' " class="fa fa-check-square-o"></i>
-              <i *ngIf="order.status == 'Rechazada' " class="fa fa-exclamation-triangle"></i>
-              <i *ngIf="order.status == 'Lista' " class="fa fa-star"></i>
-              <i *ngIf="order.status == 'Enviada' " class="fa fa-paper-plane"></i>
-              {{order.status}}
-            </td>
-            <td>
-              <a routerLink="order/{{ order.id }}" class="btn btn-secondary btn-sm">
-                <i class="fa fa-info-circle"></i>
-              </a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <ng-template #noOrders>
-        <hr>
-        <h5>No hay ordenes!</h5>
-      </ng-template>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-md-4">
+              <h3>Hoy</h3>
+            </div>
+            <div class="col-md-8">
+              <mat-form-field class="pull-right">
+                <input type="text" matInput placeholder="Buscar" [formControl]="todaySearch">
+              </mat-form-field>
+            </div>
+          </div>
+
+
+        </div>
+        <div class="card-block">
+          <table *ngIf="todayOrders?.length > 0; else noOrders" class="table table-striped">
+            <thead class="thead-inverse">
+              <tr>
+                <th>Numero de Orden</th>
+                <th *ngIf="isAdmin">Cliente</th>
+                <th>Hora Recibida</th>
+                <th>Hora Enviada</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Detalles</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let order of todayOrders">
+                <td>
+                  <a routerLink="order/{{ order.id }}">{{order.id}}</a>
+                </td>
+                <td *ngIf="isAdmin">{{order.customerName}}</td>
+                <td>{{order.timeReceived | date:'dd-MM-yyyy HH:mm a' }}</td>
+                <td>{{order.timeEnviada | date:'dd-MM-yyyy HH:mm a'}}</td>
+                <td>{{order.totalPrice | currency:'USD': 'symbol' | changeDecimal}}</td>
+                <td>
+                  <i *ngIf="order.status == 'Recibida' " class="fa fa-square-o"></i>
+                  <i *ngIf="order.status == 'Aprobada' " class="fa fa-check-square-o"></i>
+                  <i *ngIf="order.status == 'Rechazada' " class="fa fa-exclamation-triangle"></i>
+                  <i *ngIf="order.status == 'Lista' " class="fa fa-star"></i>
+                  <i *ngIf="order.status == 'Enviada' " class="fa fa-paper-plane"></i>
+                  {{order.status}}
+                </td>
+                <td>
+                  <a routerLink="order/{{ order.id }}" class="btn btn-secondary btn-sm">
+                    <i class="fa fa-info-circle"></i>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <br>
+      <div class="card">
+        <div class="card-header">
+
+          <div class="row">
+            <div class="col-md-4">
+              <h3>Historial</h3>
+            </div>
+            <div class="col-md-8">
+              <mat-form-field class="pull-right">
+                <input type="text" matInput placeholder="Buscar" [formControl]="historySearch">
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput [matDatepicker]="picker" placeholder="Desde" (dateChange)="fromDateEvent('change', $event)" [formControl]="fromDateSelect">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+              <mat-form-field>
+                <input matInput [matDatepicker]="picker2" placeholder="Hasta" (dateChange)="toDateEvent('change', $event)" [formControl]="toDateSelect">
+                <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                <mat-datepicker #picker2></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        <div class="card-block " style="overflow:scroll;  max-height:500px ">
+          <table *ngIf="filteredOrders?.length > 0; else noOrders" class="table table-striped">
+            <thead class="thead-inverse">
+              <tr>
+                <th>Numero de Orden</th>
+                <th *ngIf="isAdmin">Cliente</th>
+                <th>Hora Recibida</th>
+                <th>Hora Enviada</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Detalles</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let order of filteredOrders">
+                <td>
+                  <a routerLink="order/{{ order.id }}">{{order.id}}</a>
+                </td>
+                <td *ngIf="isAdmin">{{order.customerName}}</td>
+                <td>{{order.timeReceived | date:'dd-MM-yyyy HH:mm a' }}</td>
+                <td>{{order.timeEnviada | date:'dd-MM-yyyy HH:mm a'}}</td>
+                <td>{{order.totalPrice | currency:'USD': 'symbol' | changeDecimal}}</td>
+                <td>
+                  <i *ngIf="order.status == 'Recibida' " class="fa fa-square-o"></i>
+                  <i *ngIf="order.status == 'Aprobada' " class="fa fa-check-square-o"></i>
+                  <i *ngIf="order.status == 'Rechazada' " class="fa fa-exclamation-triangle"></i>
+                  <i *ngIf="order.status == 'Lista' " class="fa fa-star"></i>
+                  <i *ngIf="order.status == 'Enviada' " class="fa fa-paper-plane"></i>
+                  {{order.status}}
+                </td>
+                <td>
+                  <a routerLink="order/{{ order.id }}" class="btn btn-secondary btn-sm">
+                    <i class="fa fa-info-circle"></i>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <ng-template #noOrders>
+            <hr>
+            <h5>No hay ordenes!</h5>
+          </ng-template>
+        </div>
+      </div>
+      <br>
     </div>
   </div>
-
-
-
 </div>

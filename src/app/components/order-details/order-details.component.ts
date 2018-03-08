@@ -13,9 +13,10 @@ import { InventoryService } from '../../services/inventory.service';
 import { InventoryItem } from '../../models/InventoryItem';
 import { Completo } from '../../models/Completo';
 import { Customer } from '../../models/Customer';
-import {MatDialog, MatDialogConfig} from '@angular/material';
-import {AddItemDialogComponent} from '../add-item-dialog/add-item-dialog.component';
-
+import { MatDialog, MatDialogConfig } from '@angular/material';
+import { AddItemDialogComponent } from '../add-item-dialog/add-item-dialog.component';
+import { DeliveryDialogComponent } from '../delivery-dialog/delivery-dialog.component';
+import {RejectionDialogComponent} from '../rejection-dialog/rejection-dialog.component';
 
 
 
@@ -25,6 +26,18 @@ import {AddItemDialogComponent} from '../add-item-dialog/add-item-dialog.compone
   styleUrls: ['./order-details.component.css']
 })
 export class OrderDetailsComponent implements OnInit {
+
+  constructor(
+    private orderService: OrderService,
+    private customerService: CustomerService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private flashMessage: FlashMessagesService,
+    private authService: AuthService,
+    private inventoryService: InventoryService,
+    private dialog: MatDialog
+  ) { }
+
 
   id: string;
   order: Order;
@@ -75,24 +88,14 @@ export class OrderDetailsComponent implements OnInit {
 
   statusOptions = ['Recibida', 'Aprobada', 'Rechazada', 'Lista', 'Enviada'];
 
-  constructor(
-    private orderService: OrderService,
-    private customerService: CustomerService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private flashMessage: FlashMessagesService,
-    private authService: AuthService,
-    private inventoryService: InventoryService,
-    private dialog: MatDialog
-  ) { }
 
   customer: Customer;
 
 
   ngOnInit() {
 
-    window.scrollTo(0,0);
-    
+    window.scrollTo(0, 0);
+
 
     this.statusSelectionIsVisible = true;
 
@@ -149,23 +152,14 @@ export class OrderDetailsComponent implements OnInit {
     });
   }
 
-  updateBalance() {
-    this.orderService.updateOrder(this.order);
-    this.flashMessage.show('Balance updated', {
-      cssClass: 'alert-success', timeout: 4000
-    });
-  
-    
-  }
+  customerAddress: string;
 
-  currentOrderEmail: string;
+  quantityOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  quantityOptions = [1,2,3,4,5,6,7,8,9,10];
-
-  getCustomerAddress(email){
+  getCustomerAddress(email) {
     this.customerService.getCustomer(email).subscribe(customer => {
       if (customer != null) {
-        this.currentOrderEmail = customer.address;
+        this.customerAddress = customer.address;
       }
     });
   }
@@ -177,41 +171,10 @@ export class OrderDetailsComponent implements OnInit {
         cssClass: 'alert-success', timeout: 4000
       });
       this.router.navigate(['/']);
-
     }
   }
 
-  public show(): void {
 
-    this.selectedListTitle = "Item Nuevo";
-  }
-
-  public hide(): void {
-    this.visibleAnimate = false;
-    setTimeout(() => this.visible = false, 300);
-    this.resetNewLineItem();
-    this.selectionIsVisible = false;
-    this.completoIsVisible = false;
-    //this.selectedListTitle = "Nuevo Item";
-  }
-
-  public onContainerClicked(event: MouseEvent): void {
-    if ((<HTMLElement>event.target).classList.contains('modal')) {
-      this.hide();
-    }
-  }
-
-  public showSeco() {
-    this.secoIsVisible = true;
-    this.selectedList = this.sopaItems;
-  }
-  public showSopa() {
-    this.sopaIsVisible = true;
-
-  }
-  public showBebiba() {
-    this.bebibaIsVisible = true;
-  }
   completoIsVisible: boolean;
 
   public showCompleto() {
@@ -257,49 +220,6 @@ export class OrderDetailsComponent implements OnInit {
     }
   }
 
-  addNewItem() {
-    if (!this.newLineItem.inventoryId || this.newLineItem.quantity == 0) {
-      return; //add error message
-    }
-
-      var inventoryItem = this.getNewLineInventoryItem();
-      this.newLineItem.pricePerUnit = inventoryItem.price;
-      this.newLineItem.description = inventoryItem.description;
-
-      this.order.lineItems.push(this.newLineItem);
-      this.flashMessage.show("Item nuevo agregado", {
-        cssClass: 'alert-success', timeout: 4000
-      });
-      this.hide();
-    
-    this.resetNewLineItem();
-    this.getTotalPrice();
-    this.selectedListTitle = "Item Nuevo";
-  }
-
-  addNewCompleto() {
-    if(!this.newCompletoItem.bebiba || !this.newCompletoItem.seco || !this.newCompletoItem.sopa ){
-      return; //TODO Add error message
-    }
-
-    this.newLineItem.inventoryId = "completo";
-    this.newLineItem.quantity = this.newCompletoItem.quantity;
-    this.newLineItem.pricePerUnit = this.getNewCompletoPrice();
-    this.newLineItem.description = `${this.newCompletoItem.seco} | ${this.newCompletoItem.sopa} | ${this.newCompletoItem.bebiba}`
-
-    if (this.newLineItem.quantity > 0) {
-      this.order.lineItems.push(this.newLineItem);
-      this.flashMessage.show("Item nuevo agregado", {
-        cssClass: 'alert-success', timeout: 4000
-      });
-      this.hide();
-      this.getTotalPrice();
-      this.resetCompleto();
-      this.selectedListTitle = "Item Nuevo";
-    }
-
-  }
-
   getNewLineItemPrice() {
     var tempItem = this.inventoryItems.find((item) => {
       return item.id === this.newLineItem.inventoryId;
@@ -338,60 +258,137 @@ export class OrderDetailsComponent implements OnInit {
     this.getTotalPrice();
   }
 
-  getOrderTotalPrice(){
+  getOrderTotalPrice() {
     var sum = 0;
-    this.order.lineItems.forEach((value,index) =>{
+    this.order.lineItems.forEach((value, index) => {
       sum += (value.pricePerUnit * value.quantity);
     })
     return sum;
   }
 
-  submitOrder() {
-    this.updateStatus();
+  
+  openRejectionDialog() {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = false;
+    //dialogConfig.height = '80%';
+    //dialogConfig.width = '60%';
+    this.selectedListTitle = "Item Nuevo";
+
+    dialogConfig.data = {
+      selectedListTitle: "Item Nuevo"
+    };
+    const dialogRef = this.dialog.open(RejectionDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(data => {
+      this.order.rejectionReason = data.rejectionReason;
+      this.submitUpdatedOrder();
+    });
+  }
+  changeStatus(status){
+    this.order.status = status;
+    this.updateOrder();
+  }
+
+  print(){
+    this.PrintElem('print');
+  }
+
+
+  PrintElem(elem)
+{
+    //var mywindow = window.open('', 'PRINT', 'height=100,width=100');
+    var mywindow = window.open('', 'PRINT');
+
+    mywindow.document.write('<html><head><title>' + document.title  + '</title>');
+    mywindow.document.write('</head><body >');
+    //mywindow.document.write('<h1>' + document.title  + '</h1>');
+    mywindow.document.write(document.getElementById(elem).innerHTML);
+    mywindow.document.write('</body></html>');
+
+    mywindow.document.close(); // necessary for IE >= 10
+    mywindow.focus(); // necessary for IE >= 10*/
+
+    mywindow.print();
+    mywindow.close();
+
+    return true;
+}
+
+  openDeliveryDialog() {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = false;
+    //dialogConfig.height = '80%';
+    //dialogConfig.width = '60%';
+    this.selectedListTitle = "Item Nuevo";
+
+    dialogConfig.data = {
+      selectedListTitle: "Item Nuevo"
+    };
+    const dialogRef = this.dialog.open(DeliveryDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(data => {
+      this.order.deliveryBoy = data.deliveryBoy;
+      this.submitUpdatedOrder();
+
+    });
+
+  }
+
+  submitUpdatedOrder(){
+    this.orderService.updateOrder(this.order);
     this.flashMessage.show('Orden actualizada', {
       cssClass: 'alert-success', timeout: 4000
     });
     this.router.navigate(['/']);
   }
 
-  updateStatus() {
+  updateOrder() {
     this.order.totalPrice = this.getOrderTotalPrice();
-    if(this.order.status == 'Enviada'){
+    if (this.order.status == 'Enviada') {
       this.order.timeEnviada = new Date();
+
+      if (!this.order.deliveryBoy) {
+        this.openDeliveryDialog();
+      }
+      else{
+        this.submitUpdatedOrder();
+      }
     }
-    if(this.order.status == 'Rechazada'){
-      this.order.timeEnviada = '';
+    else if(this.order.status == 'Rechazada'){
+      this.openRejectionDialog();
     }
-    this.orderService.updateOrder(this.order);
-    this.flashMessage.show('Estado actualizado', {
-      cssClass: 'alert-success', timeout: 4000
-    });
+    else {
+      this.order.timeEnviada = null;
+      this.order.deliveryBoy = null;
+      this.order.rejectionReason = null;
+      this.submitUpdatedOrder();
+    }
   }
 
-  openDialog(){
+  openDialog() {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = false;
     dialogConfig.autoFocus = false;
-    //dialogConfig.height = '80%';
-    //dialogConfig.width = '60%';
 
     this.selectedListTitle = "Item Nuevo";
-    
+
     dialogConfig.data = {
       selectedListTitle: "Item Nuevo"
-  };
+    };
     const dialogRef = this.dialog.open(AddItemDialogComponent, dialogConfig);
-    dialogRef.afterClosed().subscribe( data => {
+    dialogRef.afterClosed().subscribe(data => {
       this.addNewLineItem(data.newLineItem);
-    }); 
-      
+    });
+
   }
 
-  addNewLineItem(item){
+  
+
+  addNewLineItem(item) {
     this.order.lineItems.push(item);
-      this.flashMessage.show("Item nuevo agregado", {
-        cssClass: 'alert-success', timeout: 4000
-      });
+    this.flashMessage.show("Item nuevo agregado", {
+      cssClass: 'alert-success', timeout: 4000
+    });
     this.resetNewLineItem();
     this.getTotalPrice();
   }

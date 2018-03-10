@@ -1,4 +1,6 @@
-# Clientpanel
+# Ultimate Restaurant
+
+A realtime restaurant order and customer management web application developed using Angular 5+ and Google FireStore. 
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.6.7.
 

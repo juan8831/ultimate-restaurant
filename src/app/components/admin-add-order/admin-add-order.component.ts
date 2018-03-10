@@ -291,7 +291,9 @@ export class AdminAddOrderComponent implements OnInit {
   };
     const dialogRef = this.dialog.open(AddItemDialogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe( data => {
-      this.addNewLineItem(data.newLineItem);
+      if(data){
+        this.addNewLineItem(data.newLineItem);
+      }
     }); 
       
   }

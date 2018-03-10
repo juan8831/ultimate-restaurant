@@ -85,23 +85,22 @@
             <i *ngIf="order.status == 'Enviada' " class="fa fa-paper-plane"></i>
             {{order.status}}
           </label>
-          <label *ngIf="order.rejectionReason">{{order.rejectionReason}}</label>
+          <label *ngIf="order.rejectionReason">: {{order.rejectionReason}}</label>
         </div>
       </li>
 
       
       <li class="list-group-item">
         <div class="clearfix">
-          <form (submit)="print()">
-            <div class="input-group">
-              <label class="mr-2">
+          <form>
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label">
                 <img src="assets/notepad.svg" class="icon-sm">
                 <b>Nota / Instrucciones Especiales:</b>
               </label>
-              <textarea class="form-control" name="note" rows="1" [(ngModel)]="order.note" style="max-width: 40%"></textarea>
-              <span class="input-group-btn">
-                <button type="submit" class="btn btn-primary">Actualizar</button>
-              </span>
+              <div class="col-sm-8">
+                  <textarea class="form-control" name="note" rows="1" [(ngModel)]="order.note"></textarea>
+              </div>
             </div>
           </form>
         </div>

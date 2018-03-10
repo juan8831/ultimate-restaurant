@@ -40,6 +40,8 @@ export class OrdersComponent implements OnInit {
   todaySearch: FormControl = new FormControl();
   historySearch: FormControl = new FormControl();
 
+  todayOrders2: Order[];
+
   constructor(
     private clientService: ClientService,
     private orderService: OrderService,
@@ -80,12 +82,12 @@ export class OrdersComponent implements OnInit {
   }
 
   filterTodayOrders(){
-    this.todayOrders = this.orders.filter(order => 
-
-      order.timeReceived.getDay() == this.today.getDay() 
-      && order.timeReceived.getMonth() == this.today.getMonth()
-      && order.timeReceived.getFullYear() == this.today.getFullYear()
-    );
+    // console.log(this.today);
+    // this.todayOrders = this.orders.filter(order => 
+    //   order.timeReceived.getDate() == this.today.getDate() 
+    //   && order.timeReceived.getMonth() == this.today.getMonth()
+    //   && order.timeReceived.getFullYear() == this.today.getFullYear()
+    // );
   }
   
   fromDateSelect = new FormControl(this.today);
@@ -126,6 +128,7 @@ export class OrdersComponent implements OnInit {
     } 
 
 
+
     this.inventoryService.getInventoryItem('menu-del-dia').subscribe(item => {
       this.menuDelDia = item.description;
     });
@@ -139,6 +142,11 @@ export class OrdersComponent implements OnInit {
         if (customer != null) {
           this.isAdmin = customer.role == "admin" ? true : false;
         }
+
+        this.orderService.getTodayOrders(this.email, this.isAdmin).subscribe(orders => {
+          this.todayOrders = orders;
+        });
+        
         this.orderService.getOrders(this.email, this.isAdmin).subscribe(orders => {
           this.orders = orders;
           this.filterOrdersByDate();

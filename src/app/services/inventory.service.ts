@@ -24,6 +24,8 @@ export class InventoryService {
   sopas: Observable<InventoryItem[]>;
   bebibasCollection: AngularFirestoreCollection<InventoryItem>;
   bebibas: Observable<InventoryItem[]>;
+  porcionesCollection: AngularFirestoreCollection<InventoryItem>;
+  porciones: Observable<InventoryItem[]>;
 
   constructor(private afs: AngularFirestore) {
     this.inventoryItemsCollection = this.afs.collection('inventory_items');
@@ -31,7 +33,9 @@ export class InventoryService {
     this.secosCollection = this.afs.collection('inventory_items', ref => ref.where("type", "==", "seco"));
     this.sopasCollection = this.afs.collection('inventory_items', ref => ref.where("type", "==", "sopa"));
     this.bebibasCollection = this.afs.collection('inventory_items', ref => ref.where("type", "==", "bebiba"));
-   }
+    this.porcionesCollection = this.afs.collection('inventory_items', ref => ref.where("type", "==", "porcion"));
+  
+  }
 
    getInventoryItems(): Observable<InventoryItem[]>{
     this.inventoryItems = this.inventoryItemsCollection.snapshotChanges().map(changes => {
@@ -85,6 +89,17 @@ export class InventoryService {
       });
     });
     return this.bebibas;
+   }
+
+   getPorciones(): Observable<InventoryItem[]>{
+    this.porciones = this.porcionesCollection.snapshotChanges().map(changes => {
+      return changes.map(action => {
+        const data = action.payload.doc.data() as InventoryItem;
+        data.id = action.payload.doc.id;
+        return data;
+      });
+    });
+    return this.porciones;
    }
 
   

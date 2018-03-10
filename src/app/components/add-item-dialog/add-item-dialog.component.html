@@ -26,7 +26,9 @@
       </div>
 
       <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newLineItem.inventoryId">
-        <option *ngFor="let x of selectedList" value={{x.id}}>{{x.description}} ({{x.price | currency:'USD': 'symbol' | changeDecimal }})</option>
+          <ng-container *ngFor="let x of selectedList">
+              <option *ngIf='x.isAvailable' value={{x.id}}>{{x.description}} ({{x.price | currency:'USD': 'symbol' | changeDecimal }})</option>
+          </ng-container>
       </select>
       <br>
     </form>
@@ -51,15 +53,20 @@
           <label for="staticEmail" class="col-sm-3 col-form-label">Carne</label>
           <div class="col-sm-9">
             <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newCompletoItem.seco">
-              <option *ngFor="let x of secoItems" value={{x.description}}>{{x.description}} </option>
+              <ng-container *ngFor="let x of secoItems">
+                  <option *ngIf='x.isAvailable' value={{x.description}}>{{x.description}} </option>
+              </ng-container>
+              
             </select>
           </div>
         </div>
         <div class="form-group row">
           <label for="staticEmail" class="col-sm-3 col-form-label">Bebiba</label>
           <div class="col-sm-9">
-            <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newCompletoItem.bebiba">
-              <option *ngFor="let x of bebibaItems" value={{x.description}}>{{x.description}}</option>
+              <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newCompletoItem.bebiba">
+              <ng-container *ngFor="let x of bebibaItems">
+                  <option *ngIf='x.isAvailable' value={{x.description}}>{{x.description}}</option>
+              </ng-container>
             </select>
           </div>
         </div>
@@ -84,7 +91,9 @@
         <label for="staticEmail" class="col-sm-3 col-form-label">Seco</label>
         <div class="col-sm-9">
           <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newCompletoItem.seco">
-            <option *ngFor="let x of secoItems" value={{x.description}}>{{x.description}} </option>
+              <ng-container *ngFor="let x of secoItems">
+                  <option *ngIf='x.isAvailable' value={{x.description}}>{{x.description}}</option>
+              </ng-container>
           </select>
         </div>
       </div>
@@ -92,7 +101,9 @@
         <label for="staticEmail" class="col-sm-3 col-form-label">Sopa</label>
         <div class="col-sm-9">
           <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newCompletoItem.sopa">
-            <option *ngFor="let x of sopaItems" value={{x.description}}>{{x.description}} </option>
+              <ng-container *ngFor="let x of sopaItems">
+                  <option *ngIf='x.isAvailable' value={{x.description}}>{{x.description}}</option>
+              </ng-container>
           </select>
         </div>
       </div>
@@ -100,7 +111,9 @@
         <label for="staticEmail" class="col-sm-3 col-form-label">Bebiba</label>
         <div class="col-sm-9">
           <select [value]="undefined" class="form-control" name="inventoryId" [(ngModel)]="newCompletoItem.bebiba">
-            <option *ngFor="let x of bebibaItems" value={{x.description}}>{{x.description}}</option>
+              <ng-container *ngFor="let x of bebibaItems">
+                  <option *ngIf='x.isAvailable' value={{x.description}}>{{x.description}}</option>
+              </ng-container>
           </select>
         </div>
       </div>

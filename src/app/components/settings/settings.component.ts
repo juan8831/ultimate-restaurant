@@ -21,6 +21,17 @@ export class SettingsComponent implements OnInit {
     price: 0
   }
 
+  bebibas: InventoryItem[];
+  secos: InventoryItem[];
+  porciones: InventoryItem[];
+  sopas: InventoryItem[];
+
+  selectedList: InventoryItem[];
+  selectedListName: string;
+
+  inventoryItemTypes = ['Secos', 'Bebibas', 'Porciones', 'Sopas'];
+
+
   constructor(
     private router: Router,
     private flashMessage: FlashMessagesService,
@@ -34,6 +45,16 @@ export class SettingsComponent implements OnInit {
     this.inventoryService.getInventoryItem('menu-del-dia').subscribe(item =>{
       this.menuDelDia = item;
     });
+
+    this.inventoryService.getBebibas().subscribe(items => this.bebibas = items);
+    this.inventoryService.getSecos().subscribe(items => {
+      this.secos = items
+      this.setSelectedList('Secos');
+    });
+    this.inventoryService.getSopas().subscribe(items => this.sopas = items);
+    this.inventoryService.getPorciones().subscribe(items => this.porciones = items);
+
+    
   }
 
   onSubmit(){
@@ -41,10 +62,43 @@ export class SettingsComponent implements OnInit {
     this.flashMessage.show("Settings saved!", {
       cssClass: 'alert-success', time: 4000
     });
+
   }
 
   updateMenu(){
     this.inventoryService.updateInventoryItem(this.menuDelDia);
+  }
+
+  setSelectedList(event){
+    this.selectedListName = event;
+    switch(event){  
+      case "Secos": 
+        this.selectedList = this.secos;     
+        break;
+      case "Bebibas":
+        this.selectedList = this.bebibas;
+        break;
+      case "Sopas":
+        this.selectedList = this.sopas;
+        break;
+      case "Porciones":
+        this.selectedList = this.porciones;
+        break;  
+    }
+  }
+
+  updateItem(item ){
+
+    if(item.isAvailable == "false"){
+      item.isAvailable = false;
+    }
+    if(item.isAvailable == "true")
+      item.isAvailable = true;
+  
+    this.inventoryService.updateInventoryItem(item); 
+    this.flashMessage.show('Disponibilidad actualizada' , {
+      cssClass: 'alert-success', timeout: 2000
+    }); 
   }
 
 }

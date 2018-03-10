@@ -33,6 +33,7 @@ export class AddItemDialogComponent implements OnInit {
   secoItems: InventoryItem[];
   sopaItems: InventoryItem[];
   bebibaItems: InventoryItem[];
+  porcionItems: InventoryItem[];
 
   isAdmin: boolean;
   email: string;
@@ -148,6 +149,9 @@ export class AddItemDialogComponent implements OnInit {
     this.inventoryService.getBebibas().subscribe(bebibas => {
       this.bebibaItems = bebibas;
     });
+    this.inventoryService.getPorciones().subscribe(porciones => {
+      this.porcionItems = porciones;
+    });
 
 
 
@@ -244,7 +248,7 @@ export class AddItemDialogComponent implements OnInit {
   public showSelection(type) {
     this.selectionIsVisible = true;
     switch (type) {
-      case "porcion": this.selectedList = this.sopaItems;
+      case "porcion": this.selectedList = this.porcionItems;
         this.selectedListTitle = "Porcion";
         break;
       case "seco": this.selectedList = this.secoItems;

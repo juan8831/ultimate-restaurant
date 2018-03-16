@@ -9,13 +9,13 @@ import { CustomerService } from '../../services/customer.service';
 import { AuthService } from '../../services/auth.service';
 import { InventoryService } from '../../services/inventory.service';
 
-import {MatDialog, MatDialogConfig} from '@angular/material';
-import {AddItemDialogComponent} from '../add-item-dialog/add-item-dialog.component';
+import { MatDialog, MatDialogConfig } from '@angular/material';
+import { AddItemDialogComponent } from '../add-item-dialog/add-item-dialog.component';
 
-import {MatDatepickerInputEvent} from '@angular/material/datepicker';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 
-import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/core';
-import {FormControl} from '@angular/forms';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-orders',
@@ -23,14 +23,12 @@ import {FormControl} from '@angular/forms';
   styleUrls: ['./orders.component.css']
 })
 export class OrdersComponent implements OnInit {
-  
 
-  today : Date;
+
+  today: Date;
   toDate: Date;
   fromDate: Date;
-  orders: Order[];
-  todayOrders: Order[]
-  filteredOrders: Order[];
+
   customers: Customer[];
   totalOwed: number;
   isAdmin: boolean;
@@ -38,9 +36,15 @@ export class OrdersComponent implements OnInit {
   menuDelDia: string;
   isMenuDay: boolean;
   todaySearch: FormControl = new FormControl();
+  deliverySearch: FormControl = new FormControl();
   historySearch: FormControl = new FormControl();
 
-  todayOrders2: Order[];
+  todayOrders: Order[]
+  todayFilteredOrders: Order[];
+  historyOrders: Order[];
+  historyFilteredOrders: Order[];
+
+
 
   constructor(
     private clientService: ClientService,
@@ -57,41 +61,75 @@ export class OrdersComponent implements OnInit {
 
   fromDateEvent(type: string, event: MatDatepickerInputEvent<Date>) {
     this.fromDate = event.value;
-    this.filterOrdersByDate();
+    //this.filterOrdersByDate();
   }
   toDateEvent(type: string, event: MatDatepickerInputEvent<Date>) {
     this.toDate = event.value;
-    this.filterOrdersByDate();
-  }
-  
-
-  filterOrdersByDate(){
-    this.filteredOrders = this.orders.filter(order => {
-      var tempDate = new Date(order.timeReceived) ;
-      tempDate.setHours(0,0,0,0);
-      if(tempDate <= this.toDate && tempDate >= this.fromDate){
-        return true;
-      }
-      else{
-        return false;
-      }
-
-
-    }
-    );
+    // this.filterOrdersByDate();
   }
 
-  filterTodayOrders(){
-    // console.log(this.today);
-    // this.todayOrders = this.orders.filter(order => 
-    //   order.timeReceived.getDate() == this.today.getDate() 
-    //   && order.timeReceived.getMonth() == this.today.getMonth()
-    //   && order.timeReceived.getFullYear() == this.today.getFullYear()
-    // );
+
+  filterHistoryOrdersByCustomer(name) {
+    if (name == null)
+      name = "";
+    this.historyFilteredOrders = this.historyOrders.filter(order =>
+      order.customerName.toLowerCase().includes(name.toLowerCase()));
   }
-  
+
+
+  filterTodayOrders() {
+
+  }
+
+  searchHistoryOrdersInRange() {
+    this.orderService.getOrdersInRange(this.email, this.isAdmin, this.fromDate, this.toDate).subscribe(orders => {
+      this.historyOrders = orders;
+      this.filterHistoryOrdersByCustomer(this.historySearch.value);
+      //this.filterHistoryOrders();
+
+      this.customerService.getCustomers().subscribe(customers => {
+        this.customers = customers;
+
+        this.historyOrders.forEach((value, index) => {
+          var customer = this.customers.find((customer) => {
+            return customer.id === value.customerEmail;
+          });
+          if (customer) {
+            value.customerName = customer.name;
+          }
+          else {
+            value.customerName = "Name not found";
+          }
+        });
+      });
+    });
+  }
+
   fromDateSelect = new FormControl(this.today);
   toDateSelect = new FormControl(this.today);
+
+  filterTodayOrdersByCustomer(name: String) {
+    if (name == null)
+      name = "";
+    this.todayFilteredOrders = this.todayOrders.filter(order =>
+      order.customerName.toLowerCase().includes(name.toLowerCase()));
+  }
+
+  filterTodayOrdersByDelivery(name: String) {
+    if (name == null || name.length == 0)
+      return;
+    this.todayFilteredOrders = this.todayFilteredOrders.filter(order => {
+      if (order.deliveryBoy == null) return false;
+      else {
+        if (order.deliveryBoy.toLowerCase().includes(name.toLowerCase())) return true;
+        else return false;
+      }
+    });
+
+  }
+
+
+
 
   ngOnInit() {
 
@@ -101,33 +139,35 @@ export class OrdersComponent implements OnInit {
     this.isMenuDay = true;
     this.selectedDate = this.today; /*delete*/
 
-    this.toDate.setDate(this.today.getDate()-1); //yesterday
-    this.fromDate.setDate(this.today.getDate()-15); //15 daya ago
+    this.toDate.setDate(this.today.getDate() - 1); //yesterday
+    this.fromDate.setDate(this.today.getDate() - 7); //7 days ago
     this.toDateSelect.setValue(this.toDate);
     this.fromDateSelect.setValue(this.fromDate);
     this.adapter.setLocale('es');
 
     this.historySearch.valueChanges.subscribe(value => {
-      this.filterOrdersByDate();
-      this.filteredOrders = this.filteredOrders.filter(order => 
+      this.historyFilteredOrders = this.historyOrders.filter(order =>
         order.customerName.toLowerCase().includes(value.toLowerCase()))
     });
 
     this.todaySearch.valueChanges.subscribe(value => {
-      this.filterTodayOrders();
-      this.todayOrders = this.todayOrders.filter(order => 
-        order.customerName.toLowerCase().includes(value.toLowerCase()))
+
+      this.filterTodayOrdersByCustomer(value);
+      this.filterTodayOrdersByDelivery(this.deliverySearch.value);
+
+
     });
-    
 
-   
-    
+    this.deliverySearch.valueChanges.subscribe(value => {
+      this.filterTodayOrdersByCustomer(this.todaySearch.value);
+      this.filterTodayOrdersByDelivery(value);
+    });
+
+
     //sunday is 0 
-    if(this.today.getDay() == 0){
+    if (this.today.getDay() == 0) {
       this.isMenuDay = false;
-    } 
-
-
+    }
 
     this.inventoryService.getInventoryItem('menu-del-dia').subscribe(item => {
       this.menuDelDia = item.description;
@@ -143,34 +183,26 @@ export class OrdersComponent implements OnInit {
           this.isAdmin = customer.role == "admin" ? true : false;
         }
 
+        this.customerService.getCustomers().subscribe(customers => {
+          this.customers = customers;
+
         this.orderService.getTodayOrders(this.email, this.isAdmin).subscribe(orders => {
           this.todayOrders = orders;
-        });
-        
-        this.orderService.getOrders(this.email, this.isAdmin).subscribe(orders => {
-          this.orders = orders;
-          this.filterOrdersByDate();
-          this.filterTodayOrders();
-
-          this.customerService.getCustomers().subscribe(customers => {
-            this.customers = customers;
-
-            this.orders.forEach((value, index) => {
-              var customer = this.customers.find((customer) => {
-                return customer.id === value.customerEmail;
-              });
-              if (customer) {
-                value.customerName = customer.name;
-              }
-              else {
-                value.customerName = "Name not found";
-              }
+          this.todayFilteredOrders = this.todayOrders;
+          this.todayOrders.forEach((value, index) => {
+            var customer = this.customers.find((customer) => {
+              return customer.id === value.customerEmail;
             });
+            if (customer) {
+              value.customerName = customer.name;
+            }
+            else {
+              value.customerName = "Name not found";
+            }
           });
         });
       });
+      });
     });
   }
-
 }
-

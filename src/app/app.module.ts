@@ -25,6 +25,7 @@ import {SettingsService} from './services/settings.service';
 import {OrderService} from './services/order.service';
 import {CustomerService} from './services/customer.service';
 import { InventoryService } from './services/inventory.service';
+import {PaymentService} from'./services/payment.service';
 
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { AddOrderComponent } from './components/add-order/add-order.component';
@@ -75,6 +76,9 @@ import { FooterComponent } from './components/footer/footer.component';
 import { AddItemDialogComponent } from './components/add-item-dialog/add-item-dialog.component';
 import { DeliveryDialogComponent } from './components/delivery-dialog/delivery-dialog.component';
 import { RejectionDialogComponent } from './components/rejection-dialog/rejection-dialog.component';
+import { PaymentsComponent } from './components/payments/payments.component';
+import { PaymentDetailsComponent } from './components/payment-details/payment-details.component';
+import { AddPaymentComponent } from './components/add-payment/add-payment.component';
 
 
 @NgModule({
@@ -101,7 +105,10 @@ import { RejectionDialogComponent } from './components/rejection-dialog/rejectio
     FooterComponent,
     AddItemDialogComponent,
     DeliveryDialogComponent,
-    RejectionDialogComponent
+    RejectionDialogComponent,
+    PaymentsComponent,
+    PaymentDetailsComponent,
+    AddPaymentComponent
     
   ],
   imports: [
@@ -148,7 +155,7 @@ import { RejectionDialogComponent } from './components/rejection-dialog/rejectio
     BrowserAnimationsModule,
     ReactiveFormsModule
   ],
-  providers: [ClientService, AuthService, SettingsService, OrderService, CustomerService, InventoryService],
+  providers: [ClientService, AuthService, SettingsService, OrderService, CustomerService, InventoryService, PaymentService],
   bootstrap: [AppComponent],
   entryComponents: [AddItemDialogComponent, DeliveryDialogComponent, RejectionDialogComponent]
 })

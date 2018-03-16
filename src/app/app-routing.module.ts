@@ -12,6 +12,9 @@ import { AdminDashboardComponent } from './components/admin-dashboard/admin-dash
 import {OrderDetailsComponent} from './components/order-details/order-details.component';
 import {AddOrderComponent} from './components/add-order/add-order.component';
 import {AdminAddOrderComponent} from './components/admin-add-order/admin-add-order.component';
+import {PaymentsComponent} from './components/payments/payments.component';
+import {PaymentDetailsComponent} from './components/payment-details/payment-details.component';
+import {AddPaymentComponent} from './components/add-payment/add-payment.component';
 
 import {AuthGuard} from './guards/auth.guard';
 import {RegisterGuard} from './guards/register.guard';
@@ -25,6 +28,9 @@ const routes: Routes = [
   {path: 'order/add', component: AddOrderComponent},
   {path: 'order/:id', component: OrderDetailsComponent},
   {path: 'admin/order/add', component: AdminAddOrderComponent, canActivate: [AdminGuard]},
+  {path: 'pagos', component: PaymentsComponent},
+  {path: 'pago/:id', component: PaymentDetailsComponent},
+  {path: 'admin/pago/crear', component: AddPaymentComponent},
   {path: 'client/add', component: AddClientComponent, canActivate:[AuthGuard]},
   {path: 'client/edit/:id', component: EditClientComponent, canActivate:[AuthGuard]},
   {path: 'client/:id', component: ClientDetailsComponent, canActivate:[AuthGuard]},

@@ -24,28 +24,68 @@ export class OrderService {
     this.ordersCollection = this.afs.collection('orders');
   }
 
-getTodayOrders(email: string, isAdmin: boolean): Observable < Order[] > {
+  getTodayOrders(email: string, isAdmin: boolean): Observable < Order[] > {
 
-  let today = new Date();
-  today.setHours(0,0,0,0);
-
-  if(isAdmin){
-    this.ordersCollection = this.afs.collection('orders', ref => ref.orderBy("timeReceived", "desc").where('timeReceived', ">", today));
-  }
-  else{
-    this.ordersCollection = this.afs.collection('orders', ref => ref.orderBy("timeReceived", "desc").where("customerEmail", "==", email));
-  }
-  this.orders = this.ordersCollection.snapshotChanges().map(changes => {
-    return changes.map(action => {
-      const data = action.payload.doc.data() as Order;
-      data.id = action.payload.doc.id;
-      return data;
+    let today = new Date();
+    today.setHours(0,0,0,0);
+  
+    if(isAdmin){
+      this.ordersCollection = this.afs.collection('orders', ref => 
+      ref.orderBy("timeReceived", "desc").
+      where('timeReceived', ">", today));
+    }
+    else{
+      this.ordersCollection = this.afs.collection('orders', ref => 
+      ref.orderBy("timeReceived", "desc").
+      where("customerEmail", "==", email).
+      where('timeReceived', ">", today));
+    }
+    this.orders = this.ordersCollection.snapshotChanges().map(changes => {
+      return changes.map(action => {
+        const data = action.payload.doc.data() as Order;
+        data.id = action.payload.doc.id;
+        return data;
+      });
     });
-  });
+  
+    return this.orders;
+  
+  }
 
-  return this.orders;
+  getOrdersInRange(email: string, isAdmin: boolean, fromDate: Date, toDate:Date): Observable < Order[] > {
 
-}
+    var newFromDate = new Date(fromDate);
+    var newToDate = new Date(toDate);
+    newFromDate.setHours(0,0,0,0);
+    newToDate.setDate(toDate.getDate()+1);
+    newToDate.setHours(0,0,0,0);
+
+    if(isAdmin){
+      this.ordersCollection = this.afs.collection('orders', ref => 
+      ref.orderBy("timeReceived", "desc").
+      where('timeReceived', ">", newFromDate).
+      where('timeReceived', "<", newToDate));
+    }
+    else{
+      this.ordersCollection = this.afs.collection('orders', ref => 
+      ref.orderBy("timeReceived", "desc").
+      where("customerEmail", "==", email).
+      where('timeReceived', ">", newFromDate).
+      where('timeReceived', "<", newToDate));
+    }
+    this.orders = this.ordersCollection.snapshotChanges().map(changes => {
+      return changes.map(action => {
+        const data = action.payload.doc.data() as Order;
+        data.id = action.payload.doc.id;
+        return data;
+      });
+    });
+  
+    return this.orders;
+  
+  }
+  
+
 
 getOrders(email: string, isAdmin: boolean): Observable < Order[] > {
   if(isAdmin){

@@ -29,6 +29,7 @@ const routes: Routes = [
   {path: 'order/:id', component: OrderDetailsComponent},
   {path: 'admin/order/add', component: AdminAddOrderComponent, canActivate: [AdminGuard]},
   {path: 'pagos', component: PaymentsComponent},
+  {path: 'pago/add', component: AddPaymentComponent},
   {path: 'pago/:id', component: PaymentDetailsComponent},
   {path: 'admin/pago/crear', component: AddPaymentComponent},
   {path: 'client/add', component: AddClientComponent, canActivate:[AuthGuard]},

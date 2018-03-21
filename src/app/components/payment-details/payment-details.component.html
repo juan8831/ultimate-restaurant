@@ -1,3 +1,96 @@
-<p>
-  payment-details works!
-</p>
+<div class="row">
+  <div class="col-md-6">
+    <a routerLink="/pagos" class="btn btn-link">
+      <i class="fa fa-arrow-circle-o-left"></i>
+      Regresar
+    </a>
+
+  </div>
+  <div class="col-md-6">
+    <div *ngIf="isAdmin" class="btn-group pull-right">
+      <button (click)="onDeleteClick()" class="btn btn-danger">
+        Borrar Pago
+      </button>
+    </div>
+  </div>
+</div>
+<hr>
+<div *ngIf="payment" class="card">
+  <h3 class="card-header">Pago: {{payment.id}}
+    <button *ngIf="isAdmin" type="submit" (click)="print()" class="btn btn-primary pull-right">
+      <i class="fa fa-print"></i>
+      Imprimir
+    </button>
+  </h3>
+  <div class="card-body">
+    <div class="row">
+      <div class="cold-md-8 col-sm-6">
+        <label>
+          <img src="assets/user.svg" class="icon-sm">
+          <b>Cliente:</b> {{payment.customerName}}</label>
+        <br>
+        <label>
+          <img src="assets/home.svg" class="icon-sm">
+          <b>Direccion:</b> {{customerAddress}}</label>
+      </div>
+    </div>
+
+    <ul class="list-group">
+      <li class="list-group-item">
+        <div *ngIf="isAdmin">
+          <label>
+            <img src="assets/list.svg" class="icon-sm">
+            <b>Cantidad:</b>
+          </label>
+          <input type="text" [(ngModel)]="payment.amount" />
+        </div>
+        <label *ngIf="!isAdmin">
+          <img src="assets/money.svg" class="icon-sm">
+          <b>Cantidad:</b> {{payment.amount | currency:'USD': 'symbol' | changeDecimal}}</label>
+      </li>
+      <li class="list-group-item">
+        <img src="assets/time.svg" class="icon-sm">
+        <b>Fecha:</b> {{payment.date | date:'dd-MM-yyyy HH:mm a'}}
+      </li>
+      <li class="list-group-item">
+          <label>
+            <img src="assets/notepad.svg" class="icon-sm">
+            <b>Nota: </b>
+          </label>
+          <textarea *ngIf="isAdmin" class="form-control" name="note" rows="1" [(ngModel)]="payment.note"></textarea>
+          <label *ngIf="!isAdmin">{{payment.note}}</label>
+      </li>
+
+    </ul>
+  </div>
+  <hr *ngIf="isAdmin">
+  <a *ngIf="isAdmin" (click)="updatePayment()" class="btn btn-lg btn-warning">
+    <i class="fa fa-plus"></i> Actualizar Order
+  </a>
+  <br>
+
+  <div id="print" style="display: none; max-width:100px">
+    <label>
+      <b>Restaurante El Meson</b>
+    </label>
+    <br>
+    <label>
+      <b>Pago:</b> {{payment.id}}</label>
+    <br>
+    <label>
+      <b>Cliente:</b> {{payment.customerName}} |
+      <b>Direccion:</b> {{customerAddress}}
+    </label>
+    <br>
+    <label>
+      <b>Cantidad:</b> {{payment.amount}}</label>
+    <br>
+    <label>
+      <b>Nota:</b> {{payment.note}}</label>
+    <br>
+    <label>
+      <b>Fecha:</b> {{payment.date | date:'dd-MM-yyyy HH:mm a'}}</label>
+  </div>
+</div>
+
+<h2 *ngIf="!payment">Pago no existe</h2>

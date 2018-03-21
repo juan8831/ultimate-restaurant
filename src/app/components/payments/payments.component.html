@@ -43,7 +43,7 @@
           <table *ngIf="filteredPayments?.length > 0; else noPayments" class="table table-striped">
             <thead class="thead-inverse">
               <tr>
-                <th>Numero de Orden</th>
+                <th>Numero de Pago</th>
                 <th *ngIf="isAdmin">Cliente</th>
                 <th>Fecha</th>
                 <th>Total</th>
@@ -53,13 +53,13 @@
             <tbody>
               <tr *ngFor="let payment of filteredPayments">
                 <td>
-                  <a routerLink="payment/{{ payment.id }}">{{payment.id}}</a>
+                  <a routerLink="/pago/{{ payment.id }}">{{payment.id}}</a>
                 </td>
                 <td *ngIf="isAdmin">{{payment.customerName}}</td>
                 <td>{{payment.date | date:'dd-MM-yyyy HH:mm a' }}</td>
                 <td>{{payment.amount | currency:'USD': 'symbol' | changeDecimal}}</td>
                 <td>
-                  <a routerLink="payment/{{ payment.id }}" class="btn btn-secondary btn-sm">
+                  <a routerLink="/pago/{{ payment.id }}" class="btn btn-secondary btn-sm">
                     <i class="fa fa-info-circle"></i>
                   </a>
                 </td>

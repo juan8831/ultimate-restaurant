@@ -87,7 +87,7 @@ export class PaymentsComponent implements OnInit {
     this.fromDate = new Date();
     this.selectedDate = this.today; /*delete*/
 
-    this.toDate.setDate(this.today.getDate() - 1); //yesterday
+    this.toDate.setDate(this.today.getDate()); //yesterday
     this.fromDate.setDate(this.today.getDate() - 7); //7 days ago
     this.toDateSelect.setValue(this.toDate);
     this.fromDateSelect.setValue(this.fromDate);

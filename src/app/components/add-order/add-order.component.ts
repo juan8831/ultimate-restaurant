@@ -121,27 +121,27 @@ export class AddOrderComponent implements OnInit {
   ngOnInit() {
 
    
-    //his.order.customerEmail = this.filteredCustomers[0];
+    // //his.order.customerEmail = this.filteredCustomers[0];
 
-    this.customerService.getCustomers().subscribe(customers => {
-      this.customers = customers;
-      this.filteredCustomers = this.myControl.valueChanges
-      .pipe(
-        startWith(''),
-        map(val => this.filter(val))
-      );
-      this.filteredCustomers.subscribe(customers => {
-        if(customers.length == this.customers.length){
-          this.order.customerName = "No Hay Ningun Cliente Selecionado";
-        }
-        else if(customers.length > 0){
-          this.order.customerName = customers[0].name;
-        }
-        else{
-          this.order.customerName = "Cliente Invalido";
-        }
-      });
-    });
+    // this.customerService.getCustomers().subscribe(customers => {
+    //   this.customers = customers;
+    //   this.filteredCustomers = this.myControl.valueChanges
+    //   .pipe(
+    //     startWith(''),
+    //     map(val => this.filter(val))
+    //   );
+    //   this.filteredCustomers.subscribe(customers => {
+    //     if(customers.length == this.customers.length){
+    //       this.order.customerName = "No Hay Ningun Cliente Selecionado";
+    //     }
+    //     else if(customers.length > 0){
+    //       this.order.customerName = customers[0].name;
+    //     }
+    //     else{
+    //       this.order.customerName = "Cliente Invalido";
+    //     }
+    //   });
+    // });
 
     
 

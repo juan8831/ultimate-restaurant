@@ -28,8 +28,8 @@ export class CustomerService {
     return this.customers;
    }
 
-   newCustomer(customer: Customer){
-     this.customersCollection.add(customer);
+   newCustomer(customer: Customer, id: string){
+     this.customersCollection.doc(id).set(customer);
    }
 
    getCustomer(id: string): Observable<Customer>{
